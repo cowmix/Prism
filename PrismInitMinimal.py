@@ -111,18 +111,26 @@ class PRISM_OT_open_folder(Operator):
     def execute(self, context):
         try:
             core = get_prism_core()
-            if core and core.prismIni:
-                project_path = os.path.dirname(os.path.dirname(core.prismIni))
-                if os.path.exists(project_path):
-                    import subprocess
-                    subprocess.Popen(['xdg-open', project_path])
-                    self.report({'INFO'}, f"Opened: {project_path}")
+            if core:
+                # Check for project path
+                if hasattr(core, 'prismIni') and core.prismIni:
+                    project_path = os.path.dirname(os.path.dirname(core.prismIni))
+                    if os.path.exists(project_path):
+                        import subprocess
+                        subprocess.Popen(['xdg-open', project_path])
+                        self.report({'INFO'}, f"Opened: {project_path}")
+                    else:
+                        self.report({'WARNING'}, f"Project path doesn't exist: {project_path}")
                 else:
-                    self.report({'WARNING'}, "No project set")
+                    # No project set, show Prism is working but no project loaded
+                    self.report({'INFO'}, "Prism is ready. No project currently loaded.")
+                    self.report({'INFO'}, "Use File > Open to load a .blend file from a Prism project")
             else:
-                self.report({'WARNING'}, "Prism not initialized")
+                self.report({'WARNING'}, "Could not initialize Prism core")
         except Exception as e:
-            self.report({'ERROR'}, f"Failed: {e}")
+            self.report({'ERROR'}, f"Error: {e}")
+            import traceback
+            traceback.print_exc()
         return {'FINISHED'}
 
 class PRISM_OT_render_setup(Operator):
@@ -145,15 +153,28 @@ class PRISM_OT_info(Operator):
     bl_label = "Info"
     
     def execute(self, context):
-        core = get_prism_core()
-        if core:
-            msg = f"Prism {core.version} - Minimal Mode for Linux"
-            if core.prismIni:
-                msg += f"\nProject: {os.path.dirname(os.path.dirname(core.prismIni))}"
-        else:
-            msg = "Prism not initialized"
-        
-        self.report({'INFO'}, msg)
+        try:
+            core = get_prism_core()
+            if core:
+                msgs = [f"Prism {core.version} - Minimal Mode for Linux"]
+                
+                # Check project status
+                if hasattr(core, 'prismIni') and core.prismIni:
+                    project_path = os.path.dirname(os.path.dirname(core.prismIni))
+                    msgs.append(f"Project: {project_path}")
+                else:
+                    msgs.append("Status: Ready (no project loaded)")
+                    
+                # Check current file
+                if bpy.data.filepath:
+                    msgs.append(f"Current file: {bpy.data.filepath}")
+                
+                for msg in msgs:
+                    self.report({'INFO'}, msg)
+            else:
+                self.report({'WARNING'}, "Prism core could not be initialized")
+        except Exception as e:
+            self.report({'ERROR'}, f"Error getting info: {e}")
         return {'FINISHED'}
 
 # Menu
