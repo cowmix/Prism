@@ -73,30 +73,56 @@ class Prism_Blender_Integration(object):
             bldPath = self.getBlenderPath()
             if bldPath:
                 execPath = os.path.join(os.path.dirname(bldPath), "blender.exe")
+        elif platform.system() == "Linux":
+            # Try common Linux Blender locations
+            possible_paths = [
+                "/usr/bin/blender",
+                "/usr/local/bin/blender",
+                "/snap/bin/blender",
+            ]
+            # Also check for version-specific installations
+            for path in glob.glob("/usr/local/blender*/blender"):
+                possible_paths.append(path)
+            
+            for path in possible_paths:
+                if os.path.exists(path) and os.access(path, os.X_OK):
+                    execPath = path
+                    break
 
         return execPath
 
     @err_catcher(name=__name__)
     def getBlenderPath(self):
-        try:
-            key = _winreg.OpenKey(
-                _winreg.HKEY_LOCAL_MACHINE,
-                "SOFTWARE\\Classes\\blendfile\\shell\\open\\command",
-                0,
-                _winreg.KEY_READ | _winreg.KEY_WOW64_64KEY,
-            )
-            blenderPath = (
-                (_winreg.QueryValueEx(key, ""))[0].split(' "%1"')[0].replace('"', "")
-            )
+        if platform.system() == "Windows":
+            try:
+                key = _winreg.OpenKey(
+                    _winreg.HKEY_LOCAL_MACHINE,
+                    "SOFTWARE\\Classes\\blendfile\\shell\\open\\command",
+                    0,
+                    _winreg.KEY_READ | _winreg.KEY_WOW64_64KEY,
+                )
+                blenderPath = (
+                    (_winreg.QueryValueEx(key, ""))[0].split(' "%1"')[0].replace('"', "")
+                )
 
-            vpath = os.path.join(os.path.dirname(blenderPath), "4.4")
+                vpath = os.path.join(os.path.dirname(blenderPath), "4.4")
 
-            if os.path.exists(vpath):
-                return vpath
-            else:
+                if os.path.exists(vpath):
+                    return vpath
+                else:
+                    return ""
+
+            except:
                 return ""
-
-        except:
+        elif platform.system() == "Linux":
+            # Check user config directory
+            config_dir = os.path.expanduser("~/.config/blender")
+            if os.path.exists(config_dir):
+                versions = sorted([d for d in os.listdir(config_dir) if os.path.isdir(os.path.join(config_dir, d))], reverse=True)
+                if versions:
+                    return os.path.join(config_dir, versions[0])
+            return ""
+        else:
             return ""
 
     @err_catcher(name=__name__)
@@ -109,12 +135,31 @@ class Prism_Blender_Integration(object):
                 if os.path.exists(path + "/config"):
                     blenderPaths.append(os.path.normpath(path))
             else:
-                if os.path.exists(path + "/blender.exe"):
+                blender_exec = "/blender.exe" if platform.system() == "Windows" else "/blender"
+                if os.path.exists(path + blender_exec):
                     blenderPaths.append(os.path.normpath(path))
 
-        regPath = self.getBlenderPath()
-        if regPath and os.path.exists(regPath) and regPath not in blenderPaths:
-            blenderPaths.append(regPath)
+        if platform.system() == "Windows":
+            regPath = self.getBlenderPath()
+            if regPath and os.path.exists(regPath) and regPath not in blenderPaths:
+                blenderPaths.append(regPath)
+        elif platform.system() == "Linux":
+            # Check common Linux Blender installation paths
+            linux_paths = [
+                os.path.expanduser("~/.config/blender"),
+                "/usr/share/blender",
+                "/usr/local/share/blender",
+            ]
+            for base_path in linux_paths:
+                if os.path.exists(base_path):
+                    for version_dir in sorted(os.listdir(base_path), reverse=True):
+                        full_path = os.path.join(base_path, version_dir)
+                        if os.path.isdir(full_path) and full_path not in blenderPaths:
+                            if self.useUserPrefs:
+                                if os.path.exists(os.path.join(full_path, "config")) or os.path.exists(os.path.join(full_path, "scripts")):
+                                    blenderPaths.append(full_path)
+                            else:
+                                blenderPaths.append(full_path)
 
         return blenderPaths
 

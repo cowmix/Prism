@@ -99,6 +99,18 @@ if platform.system() == "Windows" and pyLibs:
     os.environ["PATH"] = pywinpath + os.pathsep + os.environ["PATH"]
     if hasattr(os, "add_dll_directory") and os.path.exists(pywinpath):
         os.add_dll_directory(pywinpath)
+elif platform.system() == "Linux" and pyLibs:
+    # Add Linux-specific library paths if needed
+    linuxLibPath = os.path.join(pyLibPath, "linux")
+    if os.path.exists(linuxLibPath):
+        sys.path.insert(0, linuxLibPath)
+    # Set Qt plugin path if not already set
+    if "QT_PLUGIN_PATH" not in os.environ:
+        qt_paths = ["/usr/lib/qt/plugins", "/usr/lib/x86_64-linux-gnu/qt5/plugins"]
+        for path in qt_paths:
+            if os.path.exists(path):
+                os.environ["QT_PLUGIN_PATH"] = path
+                break
 
 try:
     from qtpy.QtCore import *
