@@ -1412,6 +1412,8 @@ class PLUGINNAME:
             self.core, "Installing Hub - please wait..\n\n\n"
         )
         with self.installHubMsg:
+            downloadFailed = False
+            
             if not self.core.getPlugin("PrismInternals"):
                 self.installHubMsg.msg.setText("Installing Hub - please wait..\n\nDownloading PrismInternals...")
                 QApplication.processEvents()
@@ -1419,6 +1421,8 @@ class PLUGINNAME:
                 if zipPath:
                     target = os.path.join(self.getDefaultPluginPath(), "PrismInternals")
                     updates.append({"target": target, "zip": zipPath})
+                else:
+                    downloadFailed = True
 
             if not self.core.getPlugin("Hub"):
                 self.installHubMsg.msg.setText("Installing Hub - please wait..\n\nDownloading Hub...")
@@ -1427,11 +1431,18 @@ class PLUGINNAME:
                 if zipPath:
                     target = os.path.join(self.getDefaultPluginPath(), "Hub")
                     updates.append({"target": target, "zip": zipPath})
+                else:
+                    downloadFailed = True
 
             if updates:
                 self.installHubMsg.msg.setText("Installing Hub - please wait..\n\nInstalling plugins...")
                 QApplication.processEvents()
                 self.updatePlugins(updates)
+            elif downloadFailed:
+                self.installHubMsg.msg.setText("Hub installation failed.\n\nThe downloads are not available from the server.\nPlease contact Prism support or check their website for manual installation files.")
+                QApplication.processEvents()
+                import time
+                time.sleep(3)  # Show message for 3 seconds
 
     @err_catcher(name=__name__)
     def downloadPlugin(self, plugin):
@@ -1463,6 +1474,11 @@ class PLUGINNAME:
 
         if result.get("error"):
             self.core.popup("Error in response: %s" % result.get("error"))
+            return None
+
+        if "files" not in result or not result["files"]:
+            self.core.popup("No download files available for %s. Server response: %s" % (plugin, str(result)))
+            return None
 
         file = result["files"][0]
         cachePath = os.path.join(path, ".cache")
