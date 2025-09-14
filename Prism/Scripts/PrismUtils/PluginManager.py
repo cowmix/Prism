@@ -1469,11 +1469,26 @@ class PLUGINNAME:
 
         try:
             result = response.json()
-        except:
-            self.core.popup(str(response.content))
+        except Exception as e:
+            self.core.popup("Failed to parse server response: %s\nResponse content: %s" % (str(e), str(response.content)))
+            return None
 
         if result.get("error"):
-            self.core.popup("Error in response: %s" % result.get("error"))
+            error_msg = result.get("error")
+            error_details = ""
+            
+            # Common Prism error codes
+            if error_msg == "3":
+                error_details = " (Authentication required - you need to login/register)"
+            elif error_msg == "7":
+                error_details = " (Access denied - insufficient permissions)"
+            elif error_msg == "1":
+                error_details = " (Invalid request)"
+            elif error_msg == "2":
+                error_details = " (Plugin not found)"
+            
+            full_msg = "Error downloading %s: %s%s\n\nFull server response: %s" % (plugin, error_msg, error_details, str(result))
+            self.core.popup(full_msg)
             return None
 
         if "files" not in result or not result["files"]:
