@@ -53,10 +53,22 @@ def get_prism_core():
                     pass
                 def hide(self):
                     pass
+                def raise_(self):
+                    pass
+                def activateWindow(self):
+                    pass
             
-            # Create core with dummy parent
+            # Monkey-patch PrismCore to add messageParent before __init__
+            original_init = PrismCore.PrismCore.__init__
+            
+            def patched_init(self, *args, **kwargs):
+                self.messageParent = DummyParent()
+                original_init(self, *args, **kwargs)
+            
+            PrismCore.PrismCore.__init__ = patched_init
+            
+            # Now create the core
             _prism_core = PrismCore.PrismCore(app="Blender")
-            _prism_core.messageParent = DummyParent()
             
             # Clear any project auto-loading
             if _prism_core.getConfig("globals", "current project"):
