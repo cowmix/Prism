@@ -1406,7 +1406,7 @@ class PLUGINNAME:
         return False
 
     @err_catcher(name=__name__)
-    def installHub(self):
+    def installHub(self, *args, **kwargs):
         updates = []
         self.installHubMsg = self.core.waitPopup(
             self.core, "Installing Hub - please wait..\n\n\n"
