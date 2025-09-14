@@ -283,11 +283,11 @@ class Prism_Houdini_Integration(object):
                     activeVersion = True
                 else:
                     houVItem.setCheckState(0, Qt.Unchecked)
-                    houVItem.setFlags(~Qt.ItemIsEnabled)
+                    houVItem.setFlags(Qt.ItemFlags(~Qt.ItemIsEnabled))
 
             if not activeVersion:
                 houItem.setCheckState(0, Qt.Unchecked)
-                houCustomItem.setFlags(~Qt.ItemIsEnabled)
+                houCustomItem.setFlags(Qt.ItemFlags(~Qt.ItemIsEnabled))
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             msg = QMessageBox.warning(

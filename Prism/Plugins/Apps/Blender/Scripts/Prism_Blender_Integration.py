@@ -461,7 +461,7 @@ class Prism_Blender_Integration(object):
 
             if not activeVersion:
                 bldItem.setCheckState(0, Qt.Unchecked)
-                bldCustomItem.setFlags(~Qt.ItemIsEnabled)
+                bldCustomItem.setFlags(Qt.ItemFlags(~Qt.ItemIsEnabled))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
