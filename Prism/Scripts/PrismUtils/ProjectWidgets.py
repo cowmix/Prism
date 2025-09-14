@@ -618,7 +618,7 @@ class CreateProject(QDialog, CreateProject_ui.Ui_dlg_createProject):
         self.core.validateLineEdit(pathUi, allowChars=allowChars)
 
     @err_catcher(name=__name__)
-    def browse(self):
+    def browse(self, *args, **kwargs):
         startpath = self.getProjectPath()
         if not startpath or not os.path.exists(startpath):
             startpath = self.core.prismRoot
@@ -656,6 +656,9 @@ class CreateProject(QDialog, CreateProject_ui.Ui_dlg_createProject):
 
     @err_catcher(name=__name__)
     def createClicked(self, *args, **kwargs):
+        # Debug: print what arguments are being passed
+        import sys
+        print(f"createClicked called with args: {args}, kwargs: {kwargs}", file=sys.stderr)
         result = self.runSanityChecks()
         if result:
             msg = "\n".join(result)
