@@ -655,7 +655,7 @@ class CreateProject(QDialog, CreateProject_ui.Ui_dlg_createProject):
             self.reloadSettings()
 
     @err_catcher(name=__name__)
-    def createClicked(self):
+    def createClicked(self, *args, **kwargs):
         result = self.runSanityChecks()
         if result:
             msg = "\n".join(result)
@@ -1619,7 +1619,7 @@ class CreateProductDlg(QDialog):
             tmenu.exec_(QCursor.pos())
 
     @err_catcher(name=__name__)
-    def createClicked(self):
+    def createClicked(self, *args, **kwargs):
         if self.core.mediaProducts.getLinkedToTasks():
             depText = self.core.validateLineEdit(self.e_department)
             if not depText:
@@ -1820,7 +1820,7 @@ class CreateProductVersionDlg(QDialog):
         self.l_filePath.setText("< Click or Drag & Drop files >")
 
     @err_catcher(name=__name__)
-    def createClicked(self):
+    def createClicked(self, *args, **kwargs):
         self.accept()
 
 
@@ -1975,7 +1975,7 @@ class CreateIdentifierDlg(QDialog):
             tmenu.exec_(QCursor.pos())
 
     @err_catcher(name=__name__)
-    def createClicked(self):
+    def createClicked(self, *args, **kwargs):
         if self.core.mediaProducts.getLinkedToTasks():
             depText = self.core.validateLineEdit(self.e_department)
             if not depText:
@@ -2063,7 +2063,7 @@ class CreateMediaVersionDlg(QDialog):
         self.lo_main.addWidget(self.bb_main)
 
     @err_catcher(name=__name__)
-    def createClicked(self):
+    def createClicked(self, *args, **kwargs):
         self.accept()
 
 
@@ -2549,7 +2549,7 @@ class IngestMediaDlg(QDialog):
         self.b_create.setEnabled(valid)
 
     @err_catcher(name=__name__)
-    def createClicked(self):
+    def createClicked(self, *args, **kwargs):
         if self.core.mediaProducts.getLinkedToTasks():
             depText = self.core.validateLineEdit(self.e_department)
             if not depText:

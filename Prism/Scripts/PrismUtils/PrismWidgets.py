@@ -346,7 +346,7 @@ class CreateDepartmentDlg(QDialog):
         return department
 
     @err_catcher(name=__name__)
-    def createClicked(self):
+    def createClicked(self, *args, **kwargs):
         entity = self.getEntity()
         name = self.getName()
         abbreviation = self.getAbbreviation()
@@ -527,7 +527,7 @@ class CreateTaskPresetDlg(QDialog):
             self.lw_departments.addItem(item)
 
     @err_catcher(name=__name__)
-    def createClicked(self):
+    def createClicked(self, *args, **kwargs):
         name = self.getName()
         departments = self.getDepartments()
 
