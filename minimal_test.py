@@ -93,4 +93,4 @@ print("\n✓ All tests completed successfully!")
 print("\nTo start Prism normally, try:")
 print("1. Clear your config: rm ~/.config/Prism/Prism.yml")
 print("2. Run: ./Prism.sh")
-print("3. Create a new project (don't load an existing one yet)"
+print("3. Create a new project - don't load an existing one yet")
