@@ -283,7 +283,7 @@ class Prism_Maya_Integration(object):
 
             if not activeVersion:
                 mayaItem.setCheckState(0, Qt.Unchecked)
-                mayacItem.setFlags(~Qt.ItemIsEnabled)
+                mayacItem.setFlags(Qt.ItemFlags(~Qt.ItemIsEnabled))
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             msg = QMessageBox.warning(
