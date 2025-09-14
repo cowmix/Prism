@@ -33,18 +33,26 @@ except Exception as e:
     traceback.print_exc()
     sys.exit(1)
 
-print("\nStep 3: Checking current project...")
+print("\nStep 3: Checking configuration...")
 try:
+    # Check if config exists
+    config_dir = os.path.expanduser("~/.config/Prism")
+    if not os.path.exists(config_dir):
+        print(f"Config directory doesn't exist at {config_dir}")
+        print("This is normal for first run")
+    else:
+        print(f"Config directory exists: {config_dir}")
+        # List config files
+        for f in os.listdir(config_dir):
+            print(f"  - {f}")
+    
     current_project = core.getConfig("globals", "current project")
     if current_project:
         print(f"Current project set to: {current_project}")
-        print("Clearing current project to avoid issues...")
-        core.setConfig("globals", "current project", "")
-        print("✓ Current project cleared")
     else:
         print("✓ No current project set")
 except Exception as e:
-    print(f"✗ Error checking project: {e}")
+    print(f"Note: Config error (normal for first run): {e}")
 
 print("\nStep 4: Testing Qt...")
 try:
